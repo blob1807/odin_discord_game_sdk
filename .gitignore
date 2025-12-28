@@ -1,0 +1,9 @@
+discord_game_sdk/*
+lib/*
+
+ols.json
+odinfmt.json
+
+*.exe
+*.pdb
+*.rdi
