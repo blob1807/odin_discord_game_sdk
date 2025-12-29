@@ -9,33 +9,41 @@ import "core:log"
 @require import "vendor:directx/dxgi"
 
 
+when #exists("./lib/x86_64/discord_game_sdk.dll") {
+	LIB_FOLDER :: "./lib"
+} else when #exists("./discord_game_sdk/lib/x86_64/discord_game_sdk.dll") {
+	LIB_FOLDER :: "./discord_game_sdk/lib"
+} else {
+	#panic("Couldn't find a `./discord_game_sdk/lib` or `./lib` folder")
+}
+
 when ODIN_OS == .Windows {
 	when ODIN_ARCH == .amd64 {
-		LIB_PATH :: "./lib/x86_64/discord_game_sdk.dll.lib"
+		LIB_PATH :: LIB_FOLDER + "/x86_64/discord_game_sdk.dll.lib"
 	} else when ODIN_ARCH == .i386 {
-		LIB_PATH :: "./lib/x86/discord_game_sdk.dll.lib"
+		LIB_PATH :: LIB_FOLDER + "/x86/discord_game_sdk.dll.lib"
 	} else {
-		#panic("The Discord Game SDK doesn't support the target architecture.")
+		#panic("Windows: The target architecture is unsupported; " + ODIN_ARCH_STRING)
 	}
 	
 } else when ODIN_OS == .Linux {
 	when ODIN_ARCH == .amd64 {
-		LIB_PATH :: "./lib/x86_64/discord_game_sdk.dylib"
+		LIB_PATH :: LIB_FOLDER + "/x86_64/discord_game_sdk.so"
 	} else {
-		#panic("The Discord Game SDK doesn't support the target architecture.")
+		#panic("Linux: The target architecture is unsupported; " + ODIN_ARCH_STRING)
 	}
 
 } else when ODIN_OS == .Darwin {
 	when ODIN_ARCH == .amd64 {
-		LIB_PATH :: "./lib/x86_64/discord_game_sdk.dylib"
+		LIB_PATH :: LIB_FOLDER + "/x86_64/discord_game_sdk.dylib"
 	} else when ODIN_ARCH == .arm64 {
-		LIB_PATH :: "./lib/aarch64/discord_game_sdk.dylib"
+		LIB_PATH :: LIB_FOLDER + "/aarch64/discord_game_sdk.dylib"
 	} else {
-		#panic("The Discord Game SDK doesn't support the target architecture.")
+		#panic("Darwin: The target architecture is unsupported; " + ODIN_ARCH_STRING)
 	}
 
 } else {
-	#panic("The Discord Game SDK doesn't support the target OS.")
+	#panic("The target OS is unsupported; " + ODIN_OS_STRING)
 }
 
 foreign import sdk_lib { LIB_PATH }

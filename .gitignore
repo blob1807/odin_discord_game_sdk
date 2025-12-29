@@ -3,6 +3,7 @@ lib/*
 
 ols.json
 odinfmt.json
+discord_game_sdk.zip
 
 *.exe
 *.pdb
