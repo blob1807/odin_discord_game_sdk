@@ -9,11 +9,12 @@ import "core:log"
 @require import "vendor:directx/dxgi"
 
 
-when #exists("./lib/x86_64/discord_game_sdk.dll") {
+when #exists("./lib/x86_64/discord_game_sdk.dll.lib") {
 	LIB_FOLDER :: "./lib"
-} else when #exists("./discord_game_sdk/lib/x86_64/discord_game_sdk.dll") {
+} else when #exists("./discord_game_sdk/lib/x86_64/discord_game_sdk.dll.lib") {
 	LIB_FOLDER :: "./discord_game_sdk/lib"
 } else {
+	LIB_FOLDER :: "" // Prevent `Undeclared name: LIB_FOLDER` error
 	#panic("Couldn't find a `./discord_game_sdk/lib` or `./lib` folder")
 }
 
@@ -881,7 +882,7 @@ Managers :: struct {
 	achievements:  ^AchievementManager,
 }
 
-init_managers :: proc(c: ^Core, m: ^Managers) {
+init_managers :: proc "contextless" (c: ^Core, m: ^Managers) {
 	m^ = {
 		applications  = c->get_application_manager(),
 		users         = c->get_user_manager(),
@@ -898,7 +899,7 @@ init_managers :: proc(c: ^Core, m: ^Managers) {
 	}
 }
 
-make_managers :: proc(c: ^Core) -> (res: Managers) {
+make_managers :: proc "contextless" (c: ^Core) -> (res: Managers) {
 	init_managers(c, &res)
 	return
 }
