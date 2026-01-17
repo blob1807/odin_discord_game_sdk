@@ -3,6 +3,7 @@ package c_example
 import "base:runtime"
 import "core:fmt"
 import "core:time"
+import "core:log"
 
 import discord "./../.."
 
@@ -92,6 +93,7 @@ on_lobby_connect :: proc "system" (data: rawptr, result: discord.Result, lobby: 
 }
 
 main :: proc() {
+    context.logger = log.create_console_logger()
     app: Application
     users_events: discord.UserEvents
     users_events.on_current_user_update = on_user_updated
@@ -110,13 +112,15 @@ main :: proc() {
     params.user_events         = &users_events
     DISCORD_REQUIRE( discord.Create(discord.VERSION, &params, &app.core) )
 
-    app = {
-        users        = app.core->get_user_manager(),
-        achievements = app.core->get_achievement_manager(),
-        activities   = app.core->get_activity_manager(),
-        application  = app.core->get_application_manager(),
-        lobbies      = app.core->get_lobby_manager(),
-    }
+    ctx := context
+    app.core->set_log_hook(.Debug, &ctx, discord.discord_logger)
+
+    app.users         = app.core->get_user_manager()
+    app.achievements  = app.core->get_achievement_manager()
+    app.activities    = app.core->get_activity_manager()
+    app.application   = app.core->get_application_manager()
+    app.lobbies       = app.core->get_lobby_manager()
+    app.relationships = app.core->get_relationship_manager()
 
     secret: discord.LobbySecret
     copy(secret[:], "invalid_secret")
@@ -127,8 +131,6 @@ main :: proc() {
     branch: discord.Branch
     app.application->get_current_branch(&branch)
     fmt.printf("Current branch %s\n", branch)
-
-    app.relationships = app.core->get_relationship_manager()
 
     for {
         DISCORD_REQUIRE(app.core->run_callbacks())
